@@ -12,7 +12,7 @@ const app = express();
 ======================= */
 app.use(express.json()); // NO I18N
 app.use(express.urlencoded({ extended: true })); // NO I18N
-app.use(express.static(path.join(__dirname, ".."))); // NO I18N
+app.use(express.static(path.join(__dirname, "public"))); // NO I18N
 
 /* =======================
    Config
@@ -187,11 +187,9 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "..", "html", "index.html")
-    ); // NO I1
-
+    res.sendFile(path.join(__dirname, "public", "index.html")); // NO I18N
 });
+
 
 /* =======================
    Start Server
