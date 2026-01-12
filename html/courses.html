@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Courses</title> <!-- NO I18N -->
+    <link rel="stylesheet" href="../css/courses.css" /> <!-- NO I18N -->
+</head>
+
+<body>
+
+<!-- ===== Header ===== -->
+<div class="header">
+    <div class="header-left">
+        <div class="top-tabs">
+            <button class="top-tab active" data-tab="coursesTab">
+                Courses
+            </button> <!-- NO I18N -->
+
+            <button class="top-tab" data-tab="apiTab">
+                API Response
+            </button> <!-- NO I18N -->
+
+            <button class="top-tab" data-tab="clientRegTab">
+                Client Registration
+            </button> <!-- NO I18N -->
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="user-pill">
+            <div class="avatar" id="userAvatar"></div>
+            <span id="userEmail"></span>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+            Sign Out
+        </button> <!-- NO I18N -->
+    </div>
+</div>
+
+<!-- ===== Loading Bar ===== -->
+<div id="loadingBar" class="loading-bar"></div> <!-- NO I18N -->
+
+<!-- ===== Page Content ===== -->
+<div class="content">
+
+    <!-- ===== Courses Tab ===== -->
+    <div id="coursesTab" class="tab-content active">
+
+        <div class="courses-controls">
+            <div class="results-info" id="resultsInfo"></div>
+
+            <div class="page-size">
+                <label for="pageSize">Records per page</label> <!-- NO I18N -->
+                <select id="pageSize">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="coursesGrid" class="courses-grid"></div>
+    </div>
+
+    <!-- ===== API Response Tab ===== -->
+    <div id="apiTab" class="tab-content">
+        <div class="api-container">
+
+            <div class="api-sidebar">
+                <button class="api-btn" data-api="courses">Get Courses</button> <!-- NO I18N -->
+                <button class="api-btn" data-api="categories">Get Categories</button> <!-- NO I18N -->
+                <button class="api-btn" data-api="instructors">Get Instructors</button> <!-- NO I18N -->
+            </div>
+
+            <div class="api-viewer">
+                <div class="api-url" id="apiUrl">
+                    Select an API to view details
+                </div> <!-- NO I18N -->
+                <pre class="api-response" id="apiResponse"></pre>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== Client Registration Tab ===== -->
+    <div id="clientRegTab" class="tab-content">
+            <iframe
+                src="client-registration.html"
+                style="width:100%; height:80vh; border:none; border-radius:12px;">
+            </iframe>
+        </div>
+    </div>
+
+</div>
+
+<script src="../js/courses.js"></script> <!-- NO I18N -->
+</body>
+</html>

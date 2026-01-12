@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LMS Login</title> <!-- NO I18N -->
+    <link rel="stylesheet" href="../css/login.css"> <!-- NO I18N -->
+</head>
+
+<body>
+
+<div class="login-container">
+    <h2>LMS Login</h2> <!-- NO I18N -->
+
+    <div class="form-group">
+        <label>Email</label> <!-- NO I18N -->
+        <input type="email" id="email" placeholder="Enter email"> <!-- NO I18N -->
+    </div>
+
+    <div class="form-group">
+        <label>Password</label> <!-- NO I18N -->
+        <input type="password" id="password" placeholder="Enter password"> <!-- NO I18N -->
+        <span class="toggle-password" onclick="togglePassword()">👁</span>
+    </div>
+
+    <button class="login-btn" onclick="handleLogin()">Login</button> <!-- NO I18N -->
+
+    <div id="error" class="error-msg">Invalid credentials</div> <!-- NO I18N -->
+</div>
+
+<script src="../js/users.js"></script> <!-- NO I18N -->
+<script src="../js/auth.js"></script> <!-- NO I18N -->
+
+</body>
+</html>
