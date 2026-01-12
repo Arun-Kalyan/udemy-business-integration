@@ -33,5 +33,5 @@ async function handleLogin() {
     });
 
     // Navigate after session is established
-    window.location.href = "/html/courses.html"; // NO I18N
+    window.location.href = "/courses.html"; // NO I18N
 }
