@@ -1,4 +1,5 @@
 // server.js  // NO I18N
+require("dotenv").config(); // NO I18N
 
 const express = require("express"); // NO I18N
 const fetch = require("node-fetch"); // NO I18N
@@ -8,22 +9,42 @@ const path = require("path"); // NO I18N
 const app = express();
 
 /* =======================
-   Body Parsing
+   Body Parsing + Static
 ======================= */
 app.use(express.json()); // NO I18N
 app.use(express.urlencoded({ extended: true })); // NO I18N
 app.use(express.static(path.join(__dirname, "public"))); // NO I18N
 
 /* =======================
-   Config
+   Environment Config
 ======================= */
-const JWT_SECRET = "super-secret-key-change-later"; // NO I18N
+const {
+    PORT = 3000,
+    JWT_SECRET,
+    STATIC_CLIENT_ID,
+    STATIC_CLIENT_SECRET,
+    UDEMY_ACCOUNT_NAME,
+    UDEMY_ACCOUNT_ID,
+    UDEMY_CLIENT_ID,
+    UDEMY_CLIENT_SECRET
+} = process.env;
 
-const STATIC_CLIENT = {
-    clientId: "lms_udemy_client", // NO I18N
-    clientSecret: "lms_udemy_secret_123", // NO I18N
-    scope: "xapi:write" // NO I18N
-};
+/* =======================
+   Validation (Fail Fast)
+======================= */
+[
+    "JWT_SECRET",
+    "STATIC_CLIENT_ID",
+    "STATIC_CLIENT_SECRET",
+    "UDEMY_ACCOUNT_NAME",
+    "UDEMY_ACCOUNT_ID",
+    "UDEMY_CLIENT_ID",
+    "UDEMY_CLIENT_SECRET"
+].forEach(key => {
+    if (!process.env[key]) {
+        throw new Error(`Missing env variable: ${key}`); // NO I18N
+    }
+});
 
 /* =======================
    Incoming Request Logger
@@ -34,7 +55,7 @@ app.use((req, res, next) => {
 });
 
 /* =======================
-   CORS
+   CORS (Simple)
 ======================= */
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*"); // NO I18N
@@ -53,31 +74,23 @@ app.use((req, res, next) => {
 /* =======================
    Udemy Catalog Proxy
 ======================= */
-
-const ACCOUNT_NAME = "zohopeople-test"; // NO I18N
-const ACCOUNT_ID = "371985"; // NO I18N
-const CLIENT_ID = "QSt7GSdOpCJW5fdfzZze9Q0xh0JCbUtPe3QGkRFA"; // NO I18N
-const CLIENT_SECRET =
-    "Ggf1ClVZ04yYD63QPYrkTNeiFSVWuUQyXrhvjlsxSz2w5xuNFcQFV3RogDGO4bWTPAsg2JxVTjYKgijJNqenYiDPTOlU9dOlOLRzZJb59Fv3ptB6evLqkIuibqALXxEQ"; // NO I18N
-
 app.get("/api/udemy/courses", async (req, res) => {
     try {
         const page = parseInt(req.query.page || "1", 10); // NO I18N
         const pageSize = parseInt(req.query.page_size || "25", 10); // NO I18N
 
         const url =
-            `https://${ACCOUNT_NAME}.udemy.com/api-2.0/organizations/` +
-            `${ACCOUNT_ID}/courses/list/?page=${page}&page_size=${pageSize}`; // NO I18N
+            `https://${UDEMY_ACCOUNT_NAME}.udemy.com/api-2.0/organizations/` +
+            `${UDEMY_ACCOUNT_ID}/courses/list/?page=${page}&page_size=${pageSize}`; // NO I18N
 
         const auth = Buffer
-            .from(`${CLIENT_ID}:${CLIENT_SECRET}`)
+            .from(`${UDEMY_CLIENT_ID}:${UDEMY_CLIENT_SECRET}`)
             .toString("base64"); // NO I18N
 
         const response = await fetch(url, {
-            method: "GET",
             headers: {
-                "Authorization": `Basic ${auth}`, // NO I18N
-                "Accept": "application/json" // NO I18N
+                Authorization: `Basic ${auth}`, // NO I18N
+                Accept: "application/json" // NO I18N
             }
         });
 
@@ -96,48 +109,37 @@ app.get("/api/udemy/courses", async (req, res) => {
 /* =======================
    OAuth Token Endpoint
 ======================= */
-
 app.post("/api/oauth/token", (req, res) => {
-    try {
-        const { client_id, client_secret, grant_type } = req.body;
+    const { client_id, client_secret, grant_type } = req.body;
 
-        if (grant_type !== "client_credentials") {
-            return res.status(400).json({ error: "unsupported_grant_type" }); // NO I18N
-        }
-
-        const cid = (client_id || "").trim();
-        const cs = (client_secret || "").trim();
-
-        if (
-            cid !== STATIC_CLIENT.clientId ||
-            cs !== STATIC_CLIENT.clientSecret
-        ) {
-            return res.status(401).json({ error: "invalid_client" }); // NO I18N
-        }
-
-        const token = jwt.sign(
-            { client_id: cid, scope: STATIC_CLIENT.scope },
-            JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
-        res.json({
-            access_token: token,
-            token_type: "Bearer",
-            expires_in: 3600,
-            scope: STATIC_CLIENT.scope
-        });
-
-    } catch (err) {
-        console.error("OAuth error:", err.message); // NO I18N
-        res.sendStatus(500);
+    if (grant_type !== "client_credentials") {
+        return res.status(400).json({ error: "unsupported_grant_type" }); // NO I18N
     }
+
+    if (
+        client_id !== STATIC_CLIENT_ID ||
+        client_secret !== STATIC_CLIENT_SECRET
+    ) {
+        return res.status(401).json({ error: "invalid_client" }); // NO I18N
+    }
+
+    const token = jwt.sign(
+        { client_id, scope: "xapi:write" },
+        JWT_SECRET,
+        { expiresIn: "1h" }
+    );
+
+    res.json({
+        access_token: token,
+        token_type: "Bearer",
+        expires_in: 3600,
+        scope: "xapi:write"
+    });
 });
 
 /* =======================
-   Canonical xAPI Endpoint
+   xAPI Endpoint
 ======================= */
-
 app.post("/api/xapi/statements", (req, res) => {
     try {
         const auth = req.headers.authorization || "";
@@ -160,28 +162,8 @@ app.post("/api/xapi/statements", (req, res) => {
 });
 
 /* =======================
-   xAPI Dynamic Path Trap (REGEX)
+   Root + Health
 ======================= */
-
-app.post(/^\/api\/xapi\/statements\/.+/, (req, res) => {
-    console.error("⚠️ UNEXPECTED xAPI PATH HIT"); // NO I18N
-    console.error("Path:", req.originalUrl); // NO I18N
-    res.status(400).json({ error: "invalid_xapi_endpoint" }); // NO I18N
-});
-
-/* =======================
-   Global POST Catch-All (REGEX)
-======================= */
-
-app.post(/.*/, (req, res) => {
-    console.warn("POST to unknown endpoint:", req.originalUrl); // NO I18N
-    res.sendStatus(404);
-});
-
-/* =======================
-   Health + Root
-======================= */
-
 app.get("/health", (req, res) => {
     res.json({ status: "ok" }); // NO I18N
 });
@@ -190,12 +172,9 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html")); // NO I18N
 });
 
-
 /* =======================
    Start Server
 ======================= */
-
-const PORT = 3000; // NO I18N
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`); // NO I18N
+    console.log(`Server running on port ${PORT}`); // NO I18N
 });
