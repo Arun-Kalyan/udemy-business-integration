@@ -21,16 +21,17 @@ async function handleLogin() {
         return;
     }
 
-    // Browser session (existing)
+    // Client-side reference (optional, UI use only)
     sessionStorage.setItem("LOGGED_IN_USER", email); // NO I18N
 
-    // 🔥 Server session (REQUIRED FOR SAML)
-    await fetch("http://localhost:3000/api/auth/login", {
+    // 🔥 Server-side session (CRITICAL for SAML)
+    await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" }, // NO I18N
         body: JSON.stringify({ email }),
-        credentials: "include" // IMPORTANT
+        credentials: "include" // REQUIRED for cookies
     });
 
-    window.location.href = "../html/courses.html"; // NO I18N
+    // Navigate after session is established
+    window.location.href = "/html/courses.html"; // NO I18N
 }

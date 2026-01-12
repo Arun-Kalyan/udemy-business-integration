@@ -6,7 +6,7 @@
 
 const email = sessionStorage.getItem("LOGGED_IN_USER"); // NO I18N
 if (!email) {
-    window.location.href = "../index.html"; // NO I18N
+    window.location.href = "/index.html"; // NO I18N
 }
 
 document.getElementById("userEmail").innerText = email;
@@ -15,16 +15,15 @@ document.getElementById("userAvatar").innerText =
 
 function logout() {
     sessionStorage.removeItem("LOGGED_IN_USER"); // NO I18N
-    window.location.href = "../index.html"; // NO I18N
+    window.location.href = "/index.html"; // NO I18N
 }
 
 /* ======================
-   Top Tabs (SINGLE handler)
+   Top Tabs
 ====================== */
 
 document.querySelectorAll(".top-tab").forEach(tab => {
     tab.addEventListener("click", () => {
-
         document.querySelectorAll(".top-tab")
             .forEach(t => t.classList.remove("active"));
 
@@ -54,7 +53,7 @@ async function fetchCourses() {
         renderSkeletons();
 
         const response = await fetch(
-            `http://127.0.0.1:3000/api/udemy/courses?page=${currentPage}&page_size=${pageSize}` // NO I18N
+            `/api/udemy/courses?page=${currentPage}&page_size=${pageSize}` // NO I18N
         );
 
         if (!response.ok) {
@@ -81,7 +80,6 @@ function renderCourses(courses) {
     grid.innerHTML = "";
 
     courses.forEach(course => {
-
         const hours = Math.round(
             (course.estimated_content_length_video || 0) / 60
         ); // NO I18N
@@ -212,14 +210,13 @@ function renderSkeletons() {
 ====================== */
 
 const API_MAP = {
-    courses: { url: () => `http://127.0.0.1:3000/api/udemy/courses?page=1&page_size=25` },
-    categories: { url: () => `http://127.0.0.1:3000/api/udemy/categories` },
-    instructors: { url: () => `http://127.0.0.1:3000/api/udemy/instructors` }
+    courses: { url: () => `/api/udemy/courses?page=1&page_size=25` },
+    categories: { url: () => `/api/udemy/categories` },
+    instructors: { url: () => `/api/udemy/instructors` }
 };
 
 document.querySelectorAll(".api-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
-
         document.querySelectorAll(".api-btn")
             .forEach(b => b.classList.remove("active"));
 
@@ -232,18 +229,14 @@ document.querySelectorAll(".api-btn").forEach(btn => {
         try {
             const res = await fetch(apiUrl);
             const data = await res.json();
-            document.getElementById("apiResponse").innerHTML =
-                prettyPrintJSON(data); // NO I18N
+            document.getElementById("apiResponse").innerText =
+                JSON.stringify(data, null, 2); // NO I18N
         } catch {
             document.getElementById("apiResponse").innerText =
                 "Failed to fetch API response"; // NO I18N
         }
     });
 });
-
-function prettyPrintJSON(json) {
-    return JSON.stringify(json, null, 2);
-}
 
 /* ======================
    Initial Load
