@@ -111,6 +111,12 @@ app.get("/api/udemy/courses", async (req, res) => {
 ======================= */
 app.post("/api/oauth/token", (req, res) => {
     const { client_id, client_secret, grant_type } = req.body;
+    
+    console.log("Input client_id =", client_id); // NO I18N
+    console.log("Input client_secret =", client_secret); // NO I18N
+    console.log("Input grant_type =", grant_type); // NO I18N
+    console.log("STATIC_CLIENT_ID =", STATIC_CLIENT_ID); // NO I18N
+    console.log("STATIC_CLIENT_SECRET =", STATIC_CLIENT_SECRET); // NO I18N
 
     if (grant_type !== "client_credentials") {
         return res.status(400).json({ error: "unsupported_grant_type" }); // NO I18N
