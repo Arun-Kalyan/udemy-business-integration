@@ -155,13 +155,27 @@ app.post("/api/xapi/statements", (req, res) => {
         console.log("xAPI Statement Received"); // NO I18N
         console.log(JSON.stringify(req.body, null, 2)); // NO I18N
 
-        res.sendStatus(204);
+        res.status(200).json({ success: true, message: "xAPI Statement recorded successfully" }); // NO I18N
 
     } catch (err) {
         console.error("xAPI auth error:", err.message); // NO I18N
         res.sendStatus(401);
     }
 });
+
+
+/* =======================
+   xAPI Dynamic Path Trap (REGEX)
+======================= */
+
+app.post(/^\/api\/xapi\/statements\/.+/, (req, res) => {
+    console.error("⚠️ UNEXPECTED xAPI PATH HIT"); // NO I18N
+    console.error("Path:", req.originalUrl); // NO I18N
+    res.status(400).json({ error: "invalid_xapi_endpoint" }); // NO I18N
+});
+
+
+
 
 /* =======================
    Root + Health
